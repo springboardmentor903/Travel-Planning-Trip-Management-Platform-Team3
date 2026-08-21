@@ -1,48 +1,16 @@
+"use client";
+
+import { FormEvent, useEffect, useState } from "react";
 import { UserShell } from "../components/user-shell";
+import { api, UserProfile } from "../lib/api";
 
 export default function ProfilePage() {
-  return (
-    <UserShell
-      title="Profile"
-      description="Manage your personal travel identity and travel snapshot."
-      activePage="Profile"
-    >
-      <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-        <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
-          <div className="flex items-center gap-4">
-            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-cyan-500 text-2xl font-bold text-white">
-              A
-            </div>
-            <div>
-              <h3 className="text-xl font-semibold text-slate-900">Ariana Smith</h3>
-              <p className="text-sm text-slate-500">Explorer • Remote worker</p>
-            </div>
-          </div>
-
-          <div className="mt-6 space-y-3 text-sm text-slate-600">
-            <div className="rounded-2xl bg-white p-3"><strong className="text-slate-900">Email:</strong> ariana@example.com</div>
-            <div className="rounded-2xl bg-white p-3"><strong className="text-slate-900">Location:</strong> London, UK</div>
-            <div className="rounded-2xl bg-white p-3"><strong className="text-slate-900">Languages:</strong> English, Spanish</div>
-          </div>
-        </div>
-
-        <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
-          <h3 className="text-lg font-semibold text-slate-900">Travel persona</h3>
-          <div className="mt-4 grid gap-4 md:grid-cols-2">
-            {[
-              ["Preferred pace", "Balanced: mix of adventure and rest"],
-              ["Top trip style", "Boutique stays and scenic routes"],
-              ["Average trip length", "7-10 days"],
-              ["Travel budget", "Mid-range"],
-            ].map(([label, value]) => (
-              <div key={label} className="rounded-2xl bg-white p-4">
-                <p className="text-xs uppercase tracking-[0.18em] text-slate-400">{label}</p>
-                <p className="mt-3 text-sm font-medium text-slate-700">{value}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </UserShell>
-  );
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [name, setName] = useState("");
+  const [location, setLocation] = useState("");
+  const [status, setStatus] = useState("");
+  const [error, setError] = useState("");
+  useEffect(() => { api<UserProfile>("/users/me").then((data) => { setProfile(data); setName(data.name || ""); setLocation(data.location || ""); }).catch((reason) => setError(reason instanceof Error ? reason.message : "Profile could not be loaded.")); }, []);
+  async function save(event: FormEvent) { event.preventDefault(); setStatus(""); try { const updated = await api<UserProfile>("/users/me", { method: "PUT", body: JSON.stringify({ name, location }) }); setProfile(updated); setStatus("Profile updated"); } catch (reason) { setError(reason instanceof Error ? reason.message : "Profile could not be updated."); } }
+  return <UserShell title="Profile" description="Manage your personal travel identity and travel snapshot." activePage="Profile"><div className="mb-5">{error && <p className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}{status && <p className="rounded-xl bg-emerald-50 p-3 text-sm text-emerald-700">{status}</p>}</div>{profile ? <form onSubmit={save} className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]"><section className="rounded-2xl border border-slate-200 bg-slate-50 p-5"><div className="flex items-center gap-4"><div className="flex h-20 w-20 items-center justify-center rounded-full bg-[#173f45] text-2xl font-bold text-white">{profile.name.charAt(0).toUpperCase()}</div><div><h3 className="text-xl font-semibold text-slate-900">{profile.name}</h3><p className="text-sm text-slate-500">{profile.email}</p></div></div><div className="mt-6 space-y-3 text-sm text-slate-600"><div className="rounded-xl bg-white p-3"><strong className="text-slate-900">Email:</strong> {profile.email}</div><div className="rounded-xl bg-white p-3"><strong className="text-slate-900">Location:</strong> {profile.location || "Not provided"}</div><div className="rounded-xl bg-white p-3"><strong className="text-slate-900">Languages:</strong> {profile.languages?.join(", ") || "Not provided"}</div></div></section><section className="rounded-2xl border border-slate-200 bg-slate-50 p-5"><h3 className="text-lg font-semibold text-slate-900">Edit personal details</h3><label className="mt-5 block text-sm font-medium text-slate-600">Full name<input value={name} onChange={(event) => setName(event.target.value)} className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5" /></label><label className="mt-4 block text-sm font-medium text-slate-600">Location<input value={location} onChange={(event) => setLocation(event.target.value)} className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5" /></label><button className="mt-5 rounded-xl bg-[#173f45] px-4 py-2.5 text-sm font-semibold text-white">Save profile</button></section></form> : <p className="text-sm text-slate-500">Loading profile...</p>}</UserShell>;
 }

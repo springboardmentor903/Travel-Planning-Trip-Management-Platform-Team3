@@ -1,29 +1,12 @@
-import { UserShell } from "../components/user-shell";
+"use client";
 
-const settings = [
-  { label: "Notifications", value: "Enabled" },
-  { label: "Privacy", value: "Friends only" },
-  { label: "Default currency", value: "USD" },
-  { label: "Booking reminders", value: "7 days before" },
-  { label: "Theme", value: "Light" },
-  { label: "Language", value: "English" },
-];
+import { FormEvent, useEffect, useState } from "react";
+import { UserShell } from "../components/user-shell";
+import { api, UserProfile } from "../lib/api";
 
 export default function SettingsPage() {
-  return (
-    <UserShell
-      title="Account Settings"
-      description="Update your account preferences and notifications."
-      activePage="Account Settings"
-    >
-      <div className="grid gap-4 md:grid-cols-2">
-        {settings.map((item) => (
-          <div key={item.label} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-            <p className="text-xs uppercase tracking-[0.18em] text-slate-400">{item.label}</p>
-            <p className="mt-3 text-base font-semibold text-slate-800">{item.value}</p>
-          </div>
-        ))}
-      </div>
-    </UserShell>
-  );
+  const [profile, setProfile] = useState<UserProfile | null>(null); const [name, setName] = useState(""); const [email, setEmail] = useState(""); const [status, setStatus] = useState(""); const [error, setError] = useState("");
+  useEffect(() => { api<UserProfile>("/users/me").then((data) => { setProfile(data); setName(data.name); setEmail(data.email); }).catch((reason) => setError(reason instanceof Error ? reason.message : "Account settings could not be loaded.")); }, []);
+  async function save(event: FormEvent) { event.preventDefault(); setStatus(""); try { await api<UserProfile>("/users/me", { method: "PUT", body: JSON.stringify({ name, email }) }); setStatus("Account information updated"); } catch (reason) { setError(reason instanceof Error ? reason.message : "Account information could not be updated."); } }
+  return <UserShell title="Account Settings" description="Update account information and manage your travel settings." activePage="Account Settings"><div className="space-y-5">{error && <p className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}{status && <p className="rounded-xl bg-emerald-50 p-3 text-sm text-emerald-700">{status}</p>}{profile ? <><form onSubmit={save} className="rounded-2xl border border-slate-200 bg-slate-50 p-5"><h3 className="text-lg font-semibold text-slate-900">Account information</h3><div className="mt-4 grid gap-4 md:grid-cols-2"><label className="text-sm font-medium text-slate-600">Name<input value={name} onChange={(event) => setName(event.target.value)} className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5" /></label><label className="text-sm font-medium text-slate-600">Email<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5" /></label></div><button className="mt-5 rounded-xl bg-[#173f45] px-4 py-2.5 text-sm font-semibold text-white">Save account</button></form><div className="rounded-2xl border border-slate-200 p-5"><h3 className="text-lg font-semibold text-slate-900">Other settings</h3><p className="mt-2 text-sm text-slate-500">Password, notification, language, and currency controls will appear when their backend endpoints are available.</p><div className="mt-4 grid gap-3 sm:grid-cols-2"><div className="rounded-xl bg-slate-50 p-3 text-sm text-slate-600">Notifications: Backend controlled</div><div className="rounded-xl bg-slate-50 p-3 text-sm text-slate-600">Privacy: Backend controlled</div></div></div></> : <p className="text-sm text-slate-500">Loading account settings...</p>}</div></UserShell>;
 }

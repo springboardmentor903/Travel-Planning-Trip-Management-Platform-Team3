@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
+import { clearSession } from "../lib/api";
 
 type UserShellProps = {
   title: string;
@@ -10,6 +12,8 @@ type UserShellProps = {
 
 const navItems = [
   { name: "Dashboard", href: "/dashboard" },
+  { name: "My Trips", href: "/trips" },
+  { name: "Destinations", href: "/destinations" },
   { name: "Profile", href: "/profile" },
   { name: "Travel Preferences", href: "/preferences" },
   { name: "Favourite Destinations", href: "/favorites" },
@@ -18,6 +22,13 @@ const navItems = [
 ];
 
 export function UserShell({ title, description, activePage, children }: UserShellProps) {
+  const router = useRouter();
+
+  function signOut() {
+    clearSession();
+    router.push("/");
+  }
+
   return (
     <div className="min-h-screen bg-[#f4f1eb] text-[#24313f]">
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
@@ -28,15 +39,14 @@ export function UserShell({ title, description, activePage, children }: UserShel
               <h1 className="mt-1 text-2xl font-semibold text-[#23313f]">{title}</h1>
             </div>
             <div className="flex items-center gap-3">
-              <div className="rounded-full bg-[#edf5f4] px-3 py-1 text-sm font-medium text-[#496369]">
-                Traveler Profile
-              </div>
-              <Link
-                href="/"
+              <div className="rounded-full bg-[#edf5f4] px-3 py-1 text-sm font-medium text-[#496369]">Traveler Profile</div>
+              <button
+                type="button"
+                onClick={signOut}
                 className="rounded-full border border-[#e7e1d7] bg-[#f8f5f0] px-4 py-2 text-sm font-medium text-[#425563] transition hover:border-[#d9e4e1] hover:text-[#2d4c53]"
               >
                 Sign out
-              </Link>
+              </button>
             </div>
           </div>
         </header>
@@ -49,7 +59,7 @@ export function UserShell({ title, description, activePage, children }: UserShel
               </div>
               <div>
                 <p className="text-sm text-[#5c6c73]">Welcome back</p>
-                <p className="font-semibold">Ariana Smith</p>
+                <p className="font-semibold">Your account</p>
               </div>
             </div>
 

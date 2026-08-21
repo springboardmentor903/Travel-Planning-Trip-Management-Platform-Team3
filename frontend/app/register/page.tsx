@@ -1,6 +1,12 @@
+"use client";
 import Link from "next/link";
+import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
+import { api, saveSession } from "../lib/api";
 
 export default function RegisterPage() {
+  const router = useRouter(); const [form, setForm] = useState({ name: "Ariana Smith", email: "ariana@example.com", password: "password123", confirm: "password123" }); const [error, setError] = useState("");
+  async function submit(event: FormEvent) { event.preventDefault(); if (form.password !== form.confirm) { setError("Passwords do not match"); return; } try { const result = await api<{ email: string; token: string }>("/auth/register", { method: "POST", body: JSON.stringify({ name: form.name, email: form.email, password: form.password }) }); saveSession(result.email, result.token); router.push("/dashboard"); } catch (reason) { setError(reason instanceof Error ? reason.message : "Unable to create account"); } }
   return (
     <div className="flex min-h-screen items-center justify-center px-4 py-10">
       <div className="w-full max-w-5xl overflow-hidden rounded-[28px] border border-[#e7e1d7] bg-[#fffdfb] shadow-[0_18px_40px_rgba(111,117,128,0.08)]">
@@ -35,7 +41,7 @@ export default function RegisterPage() {
               <h2 className="mt-2 text-3xl font-semibold text-[#23313f]">Register</h2>
             </div>
 
-            <form className="space-y-5">
+            <form className="space-y-5" onSubmit={submit}>
               <div>
                 <label htmlFor="name" className="mb-2 block text-sm font-medium text-[#4b5c67]">
                   Full name
@@ -43,7 +49,7 @@ export default function RegisterPage() {
                 <input
                   id="name"
                   type="text"
-                  defaultValue="Ariana Smith"
+                  value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
                   className="w-full rounded-2xl border border-[#e3d9ca] bg-white px-4 py-3 text-[#24313f] outline-none transition focus:border-[#aacfc9] focus:bg-[#fefdfb]"
                 />
               </div>
@@ -55,7 +61,7 @@ export default function RegisterPage() {
                 <input
                   id="register-email"
                   type="email"
-                  defaultValue="ariana@example.com"
+                  value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
                   className="w-full rounded-2xl border border-[#e3d9ca] bg-white px-4 py-3 text-[#24313f] outline-none transition focus:border-[#aacfc9] focus:bg-[#fefdfb]"
                 />
               </div>
@@ -67,7 +73,7 @@ export default function RegisterPage() {
                 <input
                   id="register-password"
                   type="password"
-                  defaultValue="password123"
+                  value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })}
                   className="w-full rounded-2xl border border-[#e3d9ca] bg-white px-4 py-3 text-[#24313f] outline-none transition focus:border-[#aacfc9] focus:bg-[#fefdfb]"
                 />
               </div>
@@ -79,7 +85,7 @@ export default function RegisterPage() {
                 <input
                   id="confirm-password"
                   type="password"
-                  defaultValue="password123"
+                  value={form.confirm} onChange={(e) => setForm({ ...form, confirm: e.target.value })}
                   className="w-full rounded-2xl border border-[#e3d9ca] bg-white px-4 py-3 text-[#24313f] outline-none transition focus:border-[#aacfc9] focus:bg-[#fefdfb]"
                 />
               </div>
@@ -91,12 +97,13 @@ export default function RegisterPage() {
                 </span>
               </div>
 
-              <Link
-                href="/dashboard"
+              {error && <p className="text-sm text-red-700">{error}</p>}
+              <button
+                type="submit"
                 className="mt-4 flex w-full items-center justify-center rounded-2xl bg-[#a8d9d3] px-4 py-3 text-base font-semibold text-[#1f2d2e] transition hover:bg-[#9ed0c9]"
               >
                 Create account
-              </Link>
+              </button>
             </form>
 
             <p className="mt-8 text-center text-sm text-[#5f6f7a]">

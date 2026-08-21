@@ -1,34 +1,12 @@
-import { UserShell } from "../components/user-shell";
+"use client";
 
-const trips = [
-  { destination: "Rome", period: "Apr 2025", summary: "Food trails, museum weekends, and a family villa stay." },
-  { destination: "Seoul", period: "Nov 2024", summary: "Night markets, temple walks, and multi-day city passes." },
-  { destination: "Cape Town", period: "Feb 2024", summary: "Mountain drives, wine routes, and coastal day tours." },
-];
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { UserShell } from "../components/user-shell";
+import { api, Trip } from "../lib/api";
 
 export default function HistoryPage() {
-  return (
-    <UserShell
-      title="Travel History"
-      description="Review past journeys and revisit favorite experiences."
-      activePage="Travel History"
-    >
-      <div className="space-y-4">
-        {trips.map((trip) => (
-          <div key={trip.destination} className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
-            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-              <div>
-                <p className="text-xl font-semibold text-slate-900">{trip.destination}</p>
-                <p className="text-sm text-slate-500">{trip.period}</p>
-              </div>
-              <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700">
-                Completed
-              </span>
-            </div>
-            <p className="mt-4 text-sm leading-6 text-slate-600">{trip.summary}</p>
-          </div>
-        ))}
-      </div>
-    </UserShell>
-  );
+  const [trips, setTrips] = useState<Trip[]>([]); const [error, setError] = useState("");
+  useEffect(() => { api<Trip[]>("/trips").then((items) => setTrips(items.filter((trip) => trip.status === "COMPLETED"))).catch((reason) => setError(reason instanceof Error ? reason.message : "Travel history could not be loaded.")); }, []);
+  return <UserShell title="Travel History" description="Review past journeys and revisit favorite experiences." activePage="Travel History">{error && <p className="mb-5 rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}{trips.length ? <div className="space-y-4">{trips.map((trip) => <Link href={`/trips/${trip.id}`} key={trip.id} className="block rounded-2xl border border-slate-200 bg-slate-50 p-5 transition hover:border-[#9bcfc7]"><div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between"><div><p className="text-xl font-semibold text-slate-900">{trip.title}</p><p className="text-sm text-slate-500">{trip.destination}</p></div><span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700">Completed</span></div><p className="mt-4 text-sm text-slate-600">{trip.startDate || "Date unavailable"}{trip.endDate ? ` - ${trip.endDate}` : ""}{trip.description ? ` · ${trip.description}` : ""}</p></Link>)}</div> : <div className="rounded-2xl border border-dashed border-slate-300 p-10 text-center"><p className="font-semibold text-slate-800">No completed trips yet</p><p className="mt-2 text-sm text-slate-500">Trips marked completed will appear here.</p></div>}</UserShell>;
 }
