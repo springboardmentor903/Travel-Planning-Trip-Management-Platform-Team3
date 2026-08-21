@@ -1,102 +1,203 @@
 "use client";
 
-import Link from "next/link";
 import { FormEvent, useState } from "react";
-import { api, saveSession } from "../lib/api";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
-  const router = useRouter();
-  const [email, setEmail] = useState("ariana@example.com");
-  const [password, setPassword] = useState("password123");
-  const [error, setError] = useState("");
-  async function submit(event: FormEvent) { event.preventDefault(); setError(""); try { const result = await api<{ email: string; token: string }>("/auth/login", { method: "POST", body: JSON.stringify({ email, password }) }); saveSession(result.email, result.token); router.push("/dashboard"); } catch (reason) { setError(reason instanceof Error ? reason.message : "Unable to log in"); } }
-  return (
-    <div className="flex min-h-screen items-center justify-center px-4 py-10">
-      <div className="grid w-full max-w-6xl overflow-hidden rounded-[28px] border border-[#e7e1d7] bg-[#fffdfb] shadow-[0_18px_40px_rgba(111,117,128,0.08)] lg:grid-cols-2">
-        <div className="bg-[#edf5f4] p-8 text-[#24313f] lg:p-12">
-          <p className="text-sm font-medium uppercase tracking-[0.25em] text-[#5d7a78]">TripNest</p>
-          <h1 className="mt-5 text-4xl font-semibold leading-tight text-[#23313f]">
-            Turn your next trip into a smooth, memorable plan.
-          </h1>
-          <p className="mt-5 max-w-md text-base text-[#536874]">
-            Keep all your travel preferences, ideas, and booking history in one place.
-          </p>
+    const router = useRouter();
 
-          <div className="mt-12 space-y-4">
-            {[
-              "Saved itinerary ideas",
-              "Personalized destination matches",
-              "Travel history with quick rebooking",
-            ].map((item) => (
-              <div key={item} className="flex items-center gap-3 rounded-2xl border border-[#dfe8e2] bg-white px-4 py-3 shadow-sm">
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#bfe3d8] text-sm font-bold text-[#1f2d2e]">
-                  ✓
-                </span>
-                <span className="text-sm text-[#4d5d68]">{item}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
 
-        <div className="bg-[#f9f5f0] p-8 lg:p-12">
-          <div className="mb-8">
-            <p className="text-sm font-medium uppercase tracking-[0.2em] text-[#72818c]">Welcome back</p>
-            <h2 className="mt-2 text-3xl font-semibold text-[#23313f]">Log in</h2>
-          </div>
+    const handleLogin = async (e: FormEvent) => {
+        e.preventDefault();
 
-          <form className="space-y-5" onSubmit={submit}>
-            <div>
-              <label htmlFor="email" className="mb-2 block text-sm font-medium text-[#4b5c67]">
-                Email address
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={email} onChange={(event) => setEmail(event.target.value)}
-                className="w-full rounded-2xl border border-[#e3d9ca] bg-white px-4 py-3 text-[#24313f] outline-none transition focus:border-[#aacfc9] focus:bg-[#fefdfb]"
-              />
-            </div>
+        setError("");
+        setLoading(true);
 
-            <div>
-              <label htmlFor="password" className="mb-2 block text-sm font-medium text-[#4b5c67]">
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                value={password} onChange={(event) => setPassword(event.target.value)}
-                className="w-full rounded-2xl border border-[#e3d9ca] bg-white px-4 py-3 text-[#24313f] outline-none transition focus:border-[#aacfc9] focus:bg-[#fefdfb]"
-              />
-            </div>
+        try {
+            const response = await fetch("http://localhost:8080/auth/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    email,
+                    password,
+                }),
+            });
 
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center gap-2 text-[#556673]">
-                <input type="checkbox" className="h-4 w-4 rounded border-[#d8d5ce] text-[#91c9be]" />
-                Remember me
-              </label>
-              <Link href="/forgot-password" className="font-medium text-[#4f7175] hover:text-[#3a5b5d]">
-                Forgot password?
-              </Link>
-            </div>
+            const data = await response.json();
 
-            {error && <p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
-            <button
-              type="submit"
-              className="mt-4 flex w-full items-center justify-center rounded-2xl bg-[#a8d9d3] px-4 py-3 text-base font-semibold text-[#1f2d2e] transition hover:bg-[#9ed0c9]"
-            >
-              Log in
-            </button>
-          </form>
+            if (!response.ok) {
+                throw new Error(data.message || "Invalid email or password");
+            }
 
-          <p className="mt-8 text-center text-sm text-[#5f6f7a]">
-            New to TripNest? {" "}
-            <Link href="/register" className="font-semibold text-[#4f7175] hover:text-[#3a5b5d]">
-              Create an account
-            </Link>
-          </p>
-        </div>
-      </div>
-    </div>
-  );
+            if (data.token) {
+                localStorage.setItem("token", data.token);
+            }
+
+            localStorage.setItem("user", JSON.stringify(data));
+
+            router.push("/");
+        } catch (err) {
+            setError(
+                err instanceof Error
+                    ? err.message
+                    : "Something went wrong"
+            );
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <main className="auth-page">
+
+            {/* LEFT SIDE */}
+            <section className="auth-image">
+
+                <div className="image-overlay">
+
+                    <div className="logo">
+                        ✈ TripMate
+                    </div>
+
+                    <div className="image-content">
+                        <span>YOUR JOURNEY STARTS HERE</span>
+
+                        <h1>
+                            Explore the world.
+                            <br />
+                            Create memories.
+                        </h1>
+
+                        <p>
+                            Plan your trips, discover amazing destinations,
+                            and manage your entire journey in one place.
+                        </p>
+                    </div>
+
+                </div>
+
+            </section>
+
+            {/* RIGHT SIDE */}
+            <section className="auth-container">
+
+                <div className="auth-card">
+
+                    <div className="mobile-logo">
+                        ✈ TripMate
+                    </div>
+
+                    <h2>Welcome back</h2>
+
+                    <p className="auth-description">
+                        Sign in to continue planning your next adventure.
+                    </p>
+
+                    {error && (
+                        <div className="error-box">
+                            {error}
+                        </div>
+                    )}
+
+                    <form onSubmit={handleLogin}>
+
+                        <div className="form-group">
+
+                            <label htmlFor="email">
+                                Email address
+                            </label>
+
+                            <input
+                                id="email"
+                                type="email"
+                                placeholder="you@example.com"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                            />
+
+                        </div>
+
+                        <div className="form-group">
+
+                            <div className="password-header">
+
+                                <label htmlFor="password">
+                                    Password
+                                </label>
+
+                                <Link href="/forgot-password">
+                                    Forgot password?
+                                </Link>
+
+                            </div>
+
+                            <div className="password-wrapper">
+
+                                <input
+                                    id="password"
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder="Enter your password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
+                                />
+
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setShowPassword(!showPassword)
+                                    }
+                                >
+                                    {showPassword ? "Hide" : "Show"}
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                        <label className="remember">
+
+                            <input type="checkbox" />
+
+                            <span>Remember me</span>
+
+                        </label>
+
+                        <button
+                            type="submit"
+                            className="submit-button"
+                            disabled={loading}
+                        >
+                            {loading ? "Signing in..." : "Sign in"}
+                        </button>
+
+                    </form>
+
+                    <div className="divider">
+                        <span>OR</span>
+                    </div>
+
+                    <p className="switch-page">
+                        Don't have an account?
+
+                        <Link href="/register">
+                            Create an account
+                        </Link>
+                    </p>
+
+                </div>
+
+            </section>
+
+        </main>
+    );
 }

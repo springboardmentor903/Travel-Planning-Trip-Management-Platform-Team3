@@ -1,120 +1,270 @@
 "use client";
-import Link from "next/link";
+
 import { FormEvent, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { api, saveSession } from "../lib/api";
 
 export default function RegisterPage() {
-  const router = useRouter(); const [form, setForm] = useState({ name: "Ariana Smith", email: "ariana@example.com", password: "password123", confirm: "password123" }); const [error, setError] = useState("");
-  async function submit(event: FormEvent) { event.preventDefault(); if (form.password !== form.confirm) { setError("Passwords do not match"); return; } try { const result = await api<{ email: string; token: string }>("/auth/register", { method: "POST", body: JSON.stringify({ name: form.name, email: form.email, password: form.password }) }); saveSession(result.email, result.token); router.push("/dashboard"); } catch (reason) { setError(reason instanceof Error ? reason.message : "Unable to create account"); } }
-  return (
-    <div className="flex min-h-screen items-center justify-center px-4 py-10">
-      <div className="w-full max-w-5xl overflow-hidden rounded-[28px] border border-[#e7e1d7] bg-[#fffdfb] shadow-[0_18px_40px_rgba(111,117,128,0.08)]">
-        <div className="grid lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="bg-[#edf5f4] p-8 text-[#24313f] lg:p-12">
-            <p className="text-sm font-medium uppercase tracking-[0.25em] text-[#5d7a78]">Start planning</p>
-            <h1 className="mt-5 text-4xl font-semibold leading-tight text-[#23313f]">
-              Create your travel profile and explore personalized recommendations.
-            </h1>
-            <p className="mt-5 max-w-md text-base text-[#536874]">
-              Save your favorite places, set travel preferences, and revisit past trips with ease.
-            </p>
+    const router = useRouter();
 
-            <div className="mt-10 grid gap-4 sm:grid-cols-2">
-              {[
-                ["Smart matching", "Discover destinations that fit your style."],
-                ["Trip tracking", "Keep plans, bookings, and memories together."],
-                ["Wishlists", "Save your dream places for your next adventure."],
-                ["Travel insights", "See patterns in your past trips."],
-              ].map(([title, description]) => (
-                <div key={title} className="rounded-2xl border border-[#dfe8e2] bg-white p-4 shadow-sm">
-                  <p className="text-base font-semibold text-[#23313f]">{title}</p>
-                  <p className="mt-2 text-sm text-[#536874]">{description}</p>
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+
+    const [showPassword, setShowPassword] = useState(false);
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
+
+    const handleRegister = async (e: FormEvent) => {
+        e.preventDefault();
+
+        setError("");
+
+        if (password !== confirmPassword) {
+            setError("Passwords do not match.");
+            return;
+        }
+
+        if (password.length < 6) {
+            setError("Password must be at least 6 characters.");
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const response = await fetch(
+                "http://localhost:8080/auth/register",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        name,
+                        email,
+                        password,
+                    }),
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message || "Registration failed"
+                );
+            }
+
+            alert("Registration successful!");
+
+            router.push("/login");
+
+        } catch (err) {
+            setError(
+                err instanceof Error
+                    ? err.message
+                    : "Something went wrong."
+            );
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <main className="auth-page">
+
+            {/* LEFT SIDE */}
+
+            <section className="auth-image">
+
+                <div className="image-overlay">
+
+                    <div className="logo">
+                        ✈ TripMate
+                    </div>
+
+                    <div className="image-content">
+
+                        <span>START YOUR ADVENTURE</span>
+
+                        <h1>
+                            Your next adventure
+                            <br />
+                            is waiting.
+                        </h1>
+
+                        <p>
+                            Create your account and start discovering
+                            destinations, planning trips, and creating
+                            unforgettable memories.
+                        </p>
+
+                    </div>
+
                 </div>
-              ))}
-            </div>
-          </div>
 
-          <div className="bg-[#f9f5f0] p-8 lg:p-12">
-            <div className="mb-8">
-              <p className="text-sm font-medium uppercase tracking-[0.2em] text-[#72818c]">New account</p>
-              <h2 className="mt-2 text-3xl font-semibold text-[#23313f]">Register</h2>
-            </div>
+            </section>
 
-            <form className="space-y-5" onSubmit={submit}>
-              <div>
-                <label htmlFor="name" className="mb-2 block text-sm font-medium text-[#4b5c67]">
-                  Full name
-                </label>
-                <input
-                  id="name"
-                  type="text"
-                  value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full rounded-2xl border border-[#e3d9ca] bg-white px-4 py-3 text-[#24313f] outline-none transition focus:border-[#aacfc9] focus:bg-[#fefdfb]"
-                />
-              </div>
 
-              <div>
-                <label htmlFor="register-email" className="mb-2 block text-sm font-medium text-[#4b5c67]">
-                  Email address
-                </label>
-                <input
-                  id="register-email"
-                  type="email"
-                  value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  className="w-full rounded-2xl border border-[#e3d9ca] bg-white px-4 py-3 text-[#24313f] outline-none transition focus:border-[#aacfc9] focus:bg-[#fefdfb]"
-                />
-              </div>
+            {/* RIGHT SIDE */}
 
-              <div>
-                <label htmlFor="register-password" className="mb-2 block text-sm font-medium text-[#4b5c67]">
-                  Password
-                </label>
-                <input
-                  id="register-password"
-                  type="password"
-                  value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  className="w-full rounded-2xl border border-[#e3d9ca] bg-white px-4 py-3 text-[#24313f] outline-none transition focus:border-[#aacfc9] focus:bg-[#fefdfb]"
-                />
-              </div>
+            <section className="auth-container">
 
-              <div>
-                <label htmlFor="confirm-password" className="mb-2 block text-sm font-medium text-[#4b5c67]">
-                  Confirm password
-                </label>
-                <input
-                  id="confirm-password"
-                  type="password"
-                  value={form.confirm} onChange={(e) => setForm({ ...form, confirm: e.target.value })}
-                  className="w-full rounded-2xl border border-[#e3d9ca] bg-white px-4 py-3 text-[#24313f] outline-none transition focus:border-[#aacfc9] focus:bg-[#fefdfb]"
-                />
-              </div>
+                <div className="auth-card">
 
-              <div className="flex items-start gap-2 text-sm text-[#5f6f7a]">
-                <input type="checkbox" defaultChecked className="mt-1 h-4 w-4 rounded border-[#d8d5ce] text-[#91c9be]" />
-                <span>
-                  I agree to the Terms of Service and Privacy Policy.
-                </span>
-              </div>
+                    <div className="mobile-logo">
+                        ✈ TripMate
+                    </div>
 
-              {error && <p className="text-sm text-red-700">{error}</p>}
-              <button
-                type="submit"
-                className="mt-4 flex w-full items-center justify-center rounded-2xl bg-[#a8d9d3] px-4 py-3 text-base font-semibold text-[#1f2d2e] transition hover:bg-[#9ed0c9]"
-              >
-                Create account
-              </button>
-            </form>
+                    <h2>Create your account</h2>
 
-            <p className="mt-8 text-center text-sm text-[#5f6f7a]">
-              Already have an account? {" "}
-              <Link href="/login" className="font-semibold text-[#4f7175] hover:text-[#3a5b5d]">
-                Log in
-              </Link>
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+                    <p className="auth-description">
+                        Join TripMate and start planning your next journey.
+                    </p>
+
+
+                    {error && (
+                        <div className="error-box">
+                            {error}
+                        </div>
+                    )}
+
+
+                    <form onSubmit={handleRegister}>
+
+                        {/* NAME */}
+
+                        <div className="form-group">
+
+                            <label htmlFor="name">
+                                Full name
+                            </label>
+
+                            <input
+                                id="name"
+                                type="text"
+                                placeholder="John Doe"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                required
+                            />
+
+                        </div>
+
+
+                        {/* EMAIL */}
+
+                        <div className="form-group">
+
+                            <label htmlFor="email">
+                                Email address
+                            </label>
+
+                            <input
+                                id="email"
+                                type="email"
+                                placeholder="you@example.com"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                            />
+
+                        </div>
+
+
+                        {/* PASSWORD */}
+
+                        <div className="form-group">
+
+                            <label htmlFor="password">
+                                Password
+                            </label>
+
+                            <div className="password-wrapper">
+
+                                <input
+                                    id="password"
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder="Create a password"
+                                    value={password}
+                                    onChange={(e) =>
+                                        setPassword(e.target.value)
+                                    }
+                                    required
+                                />
+
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setShowPassword(!showPassword)
+                                    }
+                                >
+                                    {showPassword ? "Hide" : "Show"}
+                                </button>
+
+                            </div>
+
+                        </div>
+
+
+                        {/* CONFIRM PASSWORD */}
+
+                        <div className="form-group">
+
+                            <label htmlFor="confirmPassword">
+                                Confirm password
+                            </label>
+
+                            <input
+                                id="confirmPassword"
+                                type={showPassword ? "text" : "password"}
+                                placeholder="Confirm your password"
+                                value={confirmPassword}
+                                onChange={(e) =>
+                                    setConfirmPassword(e.target.value)
+                                }
+                                required
+                            />
+
+                        </div>
+
+
+                        {/* BUTTON */}
+
+                        <button
+                            type="submit"
+                            className="submit-button"
+                            disabled={loading}
+                        >
+                            {loading
+                                ? "Creating account..."
+                                : "Create account"}
+                        </button>
+
+                    </form>
+
+
+                    <div className="divider">
+                        <span>OR</span>
+                    </div>
+
+
+                    <p className="switch-page">
+
+                        Already have an account?
+
+                        <Link href="/login">
+                            Sign in
+                        </Link>
+
+                    </p>
+
+                </div>
+
+            </section>
+
+        </main>
+    );
 }
