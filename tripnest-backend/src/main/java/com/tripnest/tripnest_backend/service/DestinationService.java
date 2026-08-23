@@ -21,5 +21,7 @@ public class DestinationService {
         return destinationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Destination not found"));
     }
-	
+	public List<Destination> getPopularDestinations() {
+    return destinationRepository.findByIsPopularTrue();
+}
 }

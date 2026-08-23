@@ -21,7 +21,7 @@ public class TripController {
 	        return tripService.createTrip(request);
 	    }
 
-	    @GetMapping
+	    @GetMapping("/my")
 	    public List<Trip> getMyTrips() {
 	        return tripService.getMyTrips();
 	    }

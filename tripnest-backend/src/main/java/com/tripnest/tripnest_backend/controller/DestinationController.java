@@ -20,9 +20,14 @@ public class DestinationController {
 	        return destinationService.getAllDestinations();
 	    }
 
-	    @GetMapping("/{id}")
+	@GetMapping("/popular")
+public List<Destination> getPopularDestinations() {
+    return destinationService.getPopularDestinations();
+}
+	    
+		@GetMapping("/{id}")
 	    public Destination getDestinationById(@PathVariable Integer id) {
 	        return destinationService.getDestinationById(id);
 	    }
-	
+
 }
