@@ -1,65 +1,21 @@
-import Image from "next/image";
+import Link from "next/link";
+
+const benefits = [
+  ["Plan in context", "Keep destinations, dates, and daily ideas in one considered itinerary."],
+  ["Spend with clarity", "Set a budget once and see the decisions that shape the whole trip."],
+  ["Travel together", "Share a clear plan that everyone can follow without endless messages."],
+];
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <main className="min-h-screen overflow-hidden bg-[#f6f8fc] text-[#172033]">
+      <header className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8"><Link href="/" className="flex items-center gap-2.5"><span className="grid h-9 w-9 place-items-center rounded-xl bg-[#2452bb] text-sm font-black text-white">T</span><span className="text-xl font-bold tracking-tight">TripNest</span></Link><nav className="flex items-center gap-3"><Link href="/login" className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-600 transition hover:text-[#2452bb]">Sign in</Link><Link href="/register" className="rounded-lg bg-[#2452bb] px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-blue-200 transition hover:bg-[#1c4298]">Start planning</Link></nav></header>
+      <section className="relative mx-auto grid max-w-7xl gap-12 px-5 pb-18 pt-14 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:pt-24">
+        <div className="absolute -left-64 top-0 -z-0 h-[34rem] w-[34rem] rounded-full bg-blue-100/70 blur-3xl" />
+        <div className="relative"><p className="text-sm font-bold uppercase tracking-[0.18em] text-[#4266be]">Travel planning, made calm</p><h1 className="mt-6 max-w-2xl text-5xl font-bold leading-[0.98] tracking-[-0.065em] text-[#172033] sm:text-6xl lg:text-7xl">A better home for every trip.</h1><p className="mt-7 max-w-xl text-lg leading-8 text-slate-600">TripNest brings itineraries, spending, and saved places into one focused workspace so you can spend less time coordinating and more time looking forward.</p><div className="mt-9 flex flex-wrap gap-3"><Link href="/register" className="rounded-xl bg-[#2452bb] px-5 py-3 text-sm font-bold text-white shadow-lg shadow-blue-200 transition hover:bg-[#1c4298]">Create your first trip</Link><Link href="/login" className="rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50">Open your workspace</Link></div><p className="mt-5 text-sm text-slate-500">Built for solo travelers, couples, and groups.</p></div>
+        <div className="relative mx-auto w-full max-w-lg rounded-[28px] border border-slate-200 bg-white p-4 shadow-[0_28px_70px_rgba(23,32,51,0.15)] sm:p-6"><div className="flex items-center justify-between border-b border-slate-100 pb-5"><div><p className="text-xs font-bold uppercase tracking-[0.14em] text-[#4266be]">Next trip</p><h2 className="mt-1 text-xl font-bold">Kyoto, Japan</h2></div><span className="rounded-full bg-[#eaf0ff] px-3 py-1.5 text-xs font-bold text-[#2851b8]">12 days away</span></div><div className="mt-5 grid gap-3 sm:grid-cols-2"><div className="rounded-2xl bg-[#f7f9ff] p-4"><p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-400">Budget status</p><p className="mt-3 text-3xl font-bold tracking-tight text-[#172033]">$2,840</p><p className="mt-1 text-sm text-emerald-700">72% still available</p></div><div className="rounded-2xl bg-[#172a5c] p-4 text-white"><p className="text-xs font-bold uppercase tracking-[0.12em] text-blue-200">Day 1</p><p className="mt-3 font-bold">Arrival and Gion</p><p className="mt-1 text-sm text-blue-100">3 plans scheduled</p></div></div><div className="mt-4 rounded-2xl border border-slate-200 p-4"><div className="flex items-center justify-between"><p className="font-bold">Today&apos;s checklist</p><span className="text-sm font-semibold text-[#4266be]">3 of 5</span></div><div className="mt-4 space-y-3 text-sm text-slate-600"><p className="flex gap-3"><span className="grid h-5 w-5 place-items-center rounded-full bg-emerald-100 text-xs text-emerald-700">OK</span> Confirm hotel arrival</p><p className="flex gap-3"><span className="h-5 w-5 rounded-full border-2 border-slate-300" /> Save dinner options</p></div></div></div>
+      </section>
+      <section className="border-y border-slate-200 bg-white"><div className="mx-auto grid max-w-7xl gap-8 px-5 py-14 sm:grid-cols-3 sm:px-8">{benefits.map(([title, description], index) => <article key={title} className="max-w-sm"><p className="text-sm font-bold text-[#4266be]">0{index + 1}</p><h2 className="mt-3 text-xl font-bold tracking-tight">{title}</h2><p className="mt-2 text-sm leading-6 text-slate-600">{description}</p></article>)}</div></section>
+    </main>
   );
 }

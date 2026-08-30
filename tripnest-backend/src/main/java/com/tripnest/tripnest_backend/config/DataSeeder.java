@@ -2,6 +2,8 @@ package com.tripnest.tripnest_backend.config;
  
 import com.tripnest.tripnest_backend.entity.Role;
 import com.tripnest.tripnest_backend.entity.User;
+import com.tripnest.tripnest_backend.entity.Destination;
+import com.tripnest.tripnest_backend.repository.DestinationRepository;
 import com.tripnest.tripnest_backend.repository.RoleRepository;
 import com.tripnest.tripnest_backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,7 @@ public class DataSeeder implements CommandLineRunner {
  
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
+    private final DestinationRepository destinationRepository;
     private final PasswordEncoder passwordEncoder;
  
     private static final List<String> DEFAULT_ROLES = List.of("TRAVELER", "GROUP_ADMIN", "ADMINISTRATOR");
@@ -32,6 +35,15 @@ public class DataSeeder implements CommandLineRunner {
                 roleRepository.save(role);
             }
         });
+
+        if (destinationRepository.count() == 0) {
+            destinationRepository.saveAll(List.of(
+                destination("Paris", "France", "Art, cafes, and historic neighbourhoods."),
+                destination("Bali", "Indonesia", "Beaches, temples, and tropical landscapes."),
+                destination("Manali", "India", "Mountain trails and Himalayan views."),
+                destination("Tokyo", "Japan", "Food, culture, and modern city energy.")
+            ));
+        }
  
         // Guard: if the seeded admin already exists, stop here.
         // This is the ONLY place in the entire codebase that creates an
@@ -50,5 +62,15 @@ public class DataSeeder implements CommandLineRunner {
         admin.setRole(adminRole);
         admin.setOauthGoogle(false);
         userRepository.save(admin);
+    }
+
+    private Destination destination(String name, String country, String description) {
+        Destination destination = new Destination();
+        destination.setName(name);
+        destination.setCountry(country);
+        destination.setDescription(description);
+        destination.setWeatherInfo("Check forecast before departure");
+        destination.setIsPopular(true);
+        return destination;
     }
 }
