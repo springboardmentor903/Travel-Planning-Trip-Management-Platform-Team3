@@ -14,6 +14,7 @@ public class TripRequest {
 
 	private Integer destinationId;
 	private String title;
+	private String description;
 	private LocalDate startDate;
 	private LocalDate endDate;
 	private String status;

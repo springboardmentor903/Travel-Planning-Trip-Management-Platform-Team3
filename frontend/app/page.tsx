@@ -1,60 +1,21 @@
 import Link from "next/link";
 
+const benefits = [
+  ["Plan in context", "Keep destinations, dates, and daily ideas in one considered itinerary."],
+  ["Spend with clarity", "Set a budget once and see the decisions that shape the whole trip."],
+  ["Travel together", "Share a clear plan that everyone can follow without endless messages."],
+];
+
 export default function Home() {
   return (
-    <main className="flex min-h-screen items-center justify-center px-4 py-10">
-      <div className="w-full max-w-5xl overflow-hidden rounded-[28px] border border-[#e8e0d5] bg-[#fffdfb] shadow-[0_18px_40px_rgba(111,117,128,0.08)]">
-        <div className="grid lg:grid-cols-[1.2fr_0.8fr]">
-          <div className="bg-[#edf5f4] p-8 lg:p-12">
-            <p className="text-sm font-medium uppercase tracking-[0.25em] text-[#5d7a78]">TripNest</p>
-            <h1 className="mt-6 text-4xl font-semibold leading-tight text-[#23313f] lg:text-5xl">
-              Plan better trips with a travel profile built around you.
-            </h1>
-            <p className="mt-5 max-w-lg text-base text-[#4b5c67]">
-              Save favorite destinations, track travel history, and find recommendations that feel personal.
-            </p>
-
-            <div className="mt-10 grid gap-4 sm:grid-cols-3">
-              {[
-                ["18", "saved places"],
-                ["7", "trips this year"],
-                ["4.9/5", "traveler rating"],
-              ].map(([value, label]) => (
-                <div key={label} className="rounded-2xl border border-[#dfe8e2] bg-white p-4 shadow-sm">
-                  <p className="text-2xl font-semibold text-[#23313f]">{value}</p>
-                  <p className="mt-1 text-xs uppercase tracking-[0.12em] text-[#6f7f87]">{label}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex flex-col justify-center bg-[#f9f5f0] p-8 lg:p-12">
-            <div className="mb-8">
-              <p className="text-sm font-medium uppercase tracking-[0.2em] text-[#72818c]">Welcome</p>
-              <h2 className="mt-2 text-3xl font-semibold text-[#23313f]">Your next trip starts here</h2>
-            </div>
-
-            <div className="space-y-4">
-              <Link
-                href="/login"
-                className="flex w-full items-center justify-center rounded-2xl bg-[#a8d9d3] px-4 py-3 text-base font-semibold text-[#1f2d2e] transition hover:bg-[#9ed0c9]"
-              >
-                Log in
-              </Link>
-              <Link
-                href="/register"
-                className="flex w-full items-center justify-center rounded-2xl border border-[#dfe4dc] bg-white px-4 py-3 text-base font-semibold text-[#2a3944] transition hover:bg-[#f4f8f7]"
-              >
-                Create account
-              </Link>
-            </div>
-
-            <p className="mt-6 text-sm text-[#5f6f7a]">
-              A calmer place to manage your trips, preferences, and travel memories.
-            </p>
-          </div>
-        </div>
-      </div>
+    <main className="min-h-screen overflow-hidden bg-[#f6f8fc] text-[#172033]">
+      <header className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8"><Link href="/" className="flex items-center gap-2.5"><span className="grid h-9 w-9 place-items-center rounded-xl bg-[#2452bb] text-sm font-black text-white">T</span><span className="text-xl font-bold tracking-tight">TripNest</span></Link><nav className="flex items-center gap-3"><Link href="/login" className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-600 transition hover:text-[#2452bb]">Sign in</Link><Link href="/register" className="rounded-lg bg-[#2452bb] px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-blue-200 transition hover:bg-[#1c4298]">Start planning</Link></nav></header>
+      <section className="relative mx-auto grid max-w-7xl gap-12 px-5 pb-18 pt-14 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:pt-24">
+        <div className="absolute -left-64 top-0 -z-0 h-[34rem] w-[34rem] rounded-full bg-blue-100/70 blur-3xl" />
+        <div className="relative"><p className="text-sm font-bold uppercase tracking-[0.18em] text-[#4266be]">Travel planning, made calm</p><h1 className="mt-6 max-w-2xl text-5xl font-bold leading-[0.98] tracking-[-0.065em] text-[#172033] sm:text-6xl lg:text-7xl">A better home for every trip.</h1><p className="mt-7 max-w-xl text-lg leading-8 text-slate-600">TripNest brings itineraries, spending, and saved places into one focused workspace so you can spend less time coordinating and more time looking forward.</p><div className="mt-9 flex flex-wrap gap-3"><Link href="/register" className="rounded-xl bg-[#2452bb] px-5 py-3 text-sm font-bold text-white shadow-lg shadow-blue-200 transition hover:bg-[#1c4298]">Create your first trip</Link><Link href="/login" className="rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50">Open your workspace</Link></div><p className="mt-5 text-sm text-slate-500">Built for solo travelers, couples, and groups.</p></div>
+        <div className="relative mx-auto w-full max-w-lg rounded-[28px] border border-slate-200 bg-white p-4 shadow-[0_28px_70px_rgba(23,32,51,0.15)] sm:p-6"><div className="flex items-center justify-between border-b border-slate-100 pb-5"><div><p className="text-xs font-bold uppercase tracking-[0.14em] text-[#4266be]">Next trip</p><h2 className="mt-1 text-xl font-bold">Kyoto, Japan</h2></div><span className="rounded-full bg-[#eaf0ff] px-3 py-1.5 text-xs font-bold text-[#2851b8]">12 days away</span></div><div className="mt-5 grid gap-3 sm:grid-cols-2"><div className="rounded-2xl bg-[#f7f9ff] p-4"><p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-400">Budget status</p><p className="mt-3 text-3xl font-bold tracking-tight text-[#172033]">$2,840</p><p className="mt-1 text-sm text-emerald-700">72% still available</p></div><div className="rounded-2xl bg-[#172a5c] p-4 text-white"><p className="text-xs font-bold uppercase tracking-[0.12em] text-blue-200">Day 1</p><p className="mt-3 font-bold">Arrival and Gion</p><p className="mt-1 text-sm text-blue-100">3 plans scheduled</p></div></div><div className="mt-4 rounded-2xl border border-slate-200 p-4"><div className="flex items-center justify-between"><p className="font-bold">Today&apos;s checklist</p><span className="text-sm font-semibold text-[#4266be]">3 of 5</span></div><div className="mt-4 space-y-3 text-sm text-slate-600"><p className="flex gap-3"><span className="grid h-5 w-5 place-items-center rounded-full bg-emerald-100 text-xs text-emerald-700">OK</span> Confirm hotel arrival</p><p className="flex gap-3"><span className="h-5 w-5 rounded-full border-2 border-slate-300" /> Save dinner options</p></div></div></div>
+      </section>
+      <section className="border-y border-slate-200 bg-white"><div className="mx-auto grid max-w-7xl gap-8 px-5 py-14 sm:grid-cols-3 sm:px-8">{benefits.map(([title, description], index) => <article key={title} className="max-w-sm"><p className="text-sm font-bold text-[#4266be]">0{index + 1}</p><h2 className="mt-3 text-xl font-bold tracking-tight">{title}</h2><p className="mt-2 text-sm leading-6 text-slate-600">{description}</p></article>)}</div></section>
     </main>
   );
 }

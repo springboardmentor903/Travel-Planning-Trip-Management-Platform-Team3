@@ -31,6 +31,9 @@ public class Trip {
 	
 	private String title;
 
+	@Column(length = 2000)
+	private String description;
+
 	private LocalDate startDate;
 
 	private LocalDate endDate;

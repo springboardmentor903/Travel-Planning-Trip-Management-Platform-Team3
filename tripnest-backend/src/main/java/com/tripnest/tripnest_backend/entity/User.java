@@ -1,6 +1,7 @@
 package com.tripnest.tripnest_backend.entity;
  
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
@@ -25,6 +26,7 @@ public class User {
     private String email;
  
     @Column(name = "password_hash", nullable = false)
+    @JsonIgnore
     private String passwordHash;
  
     @ManyToOne(fetch = FetchType.EAGER)
@@ -36,6 +38,25 @@ public class User {
  
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
+    private String location;
+
+    @ElementCollection
+    @CollectionTable(name = "user_languages", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "language")
+    private java.util.Set<String> languages = new java.util.LinkedHashSet<>();
+
+    @ElementCollection
+    @CollectionTable(name = "user_preferences", joinColumns = @JoinColumn(name = "user_id"))
+    @MapKeyColumn(name = "preference_key")
+    @Column(name = "preference_value")
+    private java.util.Map<String, String> preferences = new java.util.LinkedHashMap<>();
+
+    @ManyToMany
+    @JoinTable(name = "user_favorite_destinations",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "destination_id"))
+    private java.util.Set<Destination> favoriteDestinations = new java.util.LinkedHashSet<>();
  
     @PrePersist
     protected void onCreate() {

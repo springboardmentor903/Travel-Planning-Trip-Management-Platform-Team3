@@ -26,7 +26,11 @@ export default function DestinationDetailsPage() {
   }
 
   useEffect(() => {
-    if (id) void loadDestination();
+    if (!id) return;
+    const timer = window.setTimeout(() => void loadDestination(), 0);
+    return () => window.clearTimeout(timer);
+    // Data should refresh only when the route parameter changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   return (
