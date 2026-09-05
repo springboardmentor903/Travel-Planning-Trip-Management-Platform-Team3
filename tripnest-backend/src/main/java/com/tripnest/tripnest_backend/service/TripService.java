@@ -28,7 +28,7 @@ public class TripService {
     
     private final DestinationRepository destinationRepository;
     private final TripMemberRepository tripMemberRepository;
-    
+    private final TripAccessService tripAccessService;
     
     private User getCurrentUser() {
 
@@ -51,19 +51,15 @@ public class TripService {
         return trips;
     }
 	
-    public Trip getTripById(Integer tripId) {
-        User currentUser = getCurrentUser();
+  public Trip getTripById(Integer tripId) {
+    User currentUser = getCurrentUser();
 
-        Trip trip = tripRepository.findById(tripId)
-                .orElseThrow(() -> new RuntimeException("Trip not found"));
+    Trip trip = tripAccessService.getTrip(tripId);
 
-        if (!trip.getOwner().getId().equals(currentUser.getId())
-                && tripMemberRepository.findByTripIdAndUserId(tripId, currentUser.getId()).isEmpty()) {
-            throw new RuntimeException("You are not authorized to access this trip");
-        }
+    tripAccessService.checkAccess(tripId, currentUser);
 
-        return trip;
-    }
+    return trip;
+}
     
     public Trip createTrip(TripRequest request) {
 
@@ -87,24 +83,30 @@ public class TripService {
         return tripRepository.save(trip);
     }
     
-    public Trip updateTrip(Integer tripId, TripRequest request) {
+public Trip updateTrip(Integer tripId, TripRequest request) {
+    validateRequest(request);
 
-        validateRequest(request);
+    User currentUser = getCurrentUser();
 
-        Trip trip = getTripById(tripId);
+    Trip trip = tripAccessService.getTrip(tripId);
 
-        Destination destination = destinationRepository.findById(request.getDestinationId())
-                .orElseThrow(() -> new RuntimeException("Destination not found"));
-
-        trip.setDestination(destination);
-        trip.setTitle(request.getTitle());
-		trip.setDescription(request.getDescription());
-        trip.setStartDate(request.getStartDate());
-        trip.setEndDate(request.getEndDate());
-        trip.setStatus(request.getStatus());
-
-        return tripRepository.save(trip);
+    if (!tripAccessService.isOwner(tripId, currentUser)) {
+        throw new RuntimeException(
+                "Only the trip owner can update this trip");
     }
+
+    Destination destination = destinationRepository.findById(request.getDestinationId())
+            .orElseThrow(() -> new RuntimeException("Destination not found"));
+
+    trip.setDestination(destination);
+    trip.setTitle(request.getTitle());
+    trip.setDescription(request.getDescription());
+    trip.setStartDate(request.getStartDate());
+    trip.setEndDate(request.getEndDate());
+    trip.setStatus(request.getStatus());
+
+    return tripRepository.save(trip);
+}
 
     private void validateRequest(TripRequest request) {
         if (request == null || request.getDestinationId() == null) {
@@ -123,11 +125,17 @@ public class TripService {
         }
     }
     
-    public void deleteTrip(Integer tripId) {
+   public void deleteTrip(Integer tripId) {
+    User currentUser = getCurrentUser();
 
-        Trip trip = getTripById(tripId);
+    Trip trip = tripAccessService.getTrip(tripId);
 
-        tripRepository.delete(trip);
+    if (!tripAccessService.isOwner(tripId, currentUser)) {
+        throw new RuntimeException(
+                "Only the trip owner can delete this trip");
     }
+
+    tripRepository.delete(trip);
+}
     
 }
