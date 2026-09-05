@@ -13,7 +13,8 @@ export type Trip = {
   days?: Day[];
   owner?: { id?: number; name?: string; email?: string };
 };
-export type Destination = { id: string | number; name: string; country?: string; description?: string; weatherInfo?: string; isPopular?: boolean; weather?: { temperature: string; condition: string; source: string }; highlights?: string[] };
+export type Destination = { id: string | number; name: string; country?: string; description?: string;latitude?: number;
+  longitude?: number; weatherInfo?: string; isPopular?: boolean; weather?: { temperature: string; condition: string; source: string }; highlights?: string[] };
 export type Budget = { id?: number; amount: number | string; currency: string; trip?: { id?: number } };
 export type Expense = { id?: number; category: string; amount: number | string; date: string; receiptLink?: string; trip?: { id?: number }; payer?: { id?: number; name?: string; email?: string } };
 export type CategorySummaryItem = { category: string; total: number };
@@ -147,4 +148,49 @@ export async function searchTripsByName(name: string): Promise<TripSearchResult[
 
 export async function requestToJoinTrip(tripId: number): Promise<void> {
   return api(`/trips/${tripId}/join-requests`, { method: "POST", body: "{}" });
+}
+
+
+export type WeatherResponse = {
+  coord: {
+    lon: number;
+    lat: number;
+  };
+  weather: {
+    id: number;
+    main: string;
+    description: string;
+  }[];
+  main: {
+    temp: number;
+    feels_like: number;
+    temp_min: number;
+    temp_max: number;
+    pressure: number;
+    humidity: number;
+  };
+  wind: {
+    speed: number;
+  };
+  clouds: {
+    all: number;
+  };
+  dt: number;
+  sys: {
+    country: string;
+    sunrise: number;
+    sunset: number;
+  };
+  timezone: number;
+  id: number;
+  name: string;
+};
+
+export async function getWeather(
+  latitude: number,
+  longitude: number
+): Promise<WeatherResponse> {
+  return api<WeatherResponse>(
+    `/weather?latitude=${latitude}&longitude=${longitude}`
+  );
 }
