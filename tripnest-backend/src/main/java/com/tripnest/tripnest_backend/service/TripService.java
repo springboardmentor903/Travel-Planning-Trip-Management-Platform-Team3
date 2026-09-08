@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import com.tripnest.tripnest_backend.entity.Trip;
+import com.tripnest.tripnest_backend.entity.TripMember;
 import com.tripnest.tripnest_backend.entity.User;
 
 import org.springframework.security.core.Authentication;
@@ -29,7 +30,8 @@ public class TripService {
     private final DestinationRepository destinationRepository;
     private final TripMemberRepository tripMemberRepository;
     private final TripAccessService tripAccessService;
-    
+    private final NotificationService notificationService;
+
     private User getCurrentUser() {
 
         Authentication authentication =
@@ -83,20 +85,48 @@ public class TripService {
         return tripRepository.save(trip);
     }
     
-public Trip updateTrip(Integer tripId, TripRequest request) {
+public Trip updateTrip(
+        Integer tripId,
+        TripRequest request) {
+
     validateRequest(request);
 
     User currentUser = getCurrentUser();
 
-    Trip trip = tripAccessService.getTrip(tripId);
+    Trip trip =
+            tripAccessService.getTrip(tripId);
 
-    if (!tripAccessService.isOwner(tripId, currentUser)) {
+    if (!tripAccessService.isOwner(
+            tripId,
+            currentUser)) {
+
         throw new RuntimeException(
                 "Only the trip owner can update this trip");
     }
 
-    Destination destination = destinationRepository.findById(request.getDestinationId())
-            .orElseThrow(() -> new RuntimeException("Destination not found"));
+    Destination destination =
+            destinationRepository
+                    .findById(
+                            request.getDestinationId())
+                    .orElseThrow(() ->
+                            new RuntimeException(
+                                    "Destination not found"));
+
+    boolean destinationChanged =
+            trip.getDestination() == null
+                    || !trip.getDestination()
+                            .getId()
+                            .equals(destination.getId());
+
+    boolean startDateChanged =
+            !java.util.Objects.equals(
+                    trip.getStartDate(),
+                    request.getStartDate());
+
+    boolean endDateChanged =
+            !java.util.Objects.equals(
+                    trip.getEndDate(),
+                    request.getEndDate());
 
     trip.setDestination(destination);
     trip.setTitle(request.getTitle());
@@ -105,7 +135,67 @@ public Trip updateTrip(Integer tripId, TripRequest request) {
     trip.setEndDate(request.getEndDate());
     trip.setStatus(request.getStatus());
 
-    return tripRepository.save(trip);
+    Trip savedTrip =
+            tripRepository.save(trip);
+
+    /*
+     * Notify other members only when
+     * core travel details changed.
+     */
+    if (destinationChanged
+            || startDateChanged
+            || endDateChanged) {
+
+        String message =
+                "Travel update for trip \""
+                        + savedTrip.getTitle()
+                        + "\". ";
+
+        if (destinationChanged) {
+            message +=
+                    "The destination has been changed to "
+                            + destination.getName()
+                            + ". ";
+        }
+
+        if (startDateChanged
+                || endDateChanged) {
+
+            message +=
+                    "The trip dates are now "
+                            + savedTrip.getStartDate()
+                            + " to "
+                            + savedTrip.getEndDate()
+                            + ".";
+        }
+
+        List<TripMember> members =
+                tripMemberRepository.findByTripId(
+                        tripId);
+
+        for (TripMember member : members) {
+
+            /*
+             * Do not notify the user who made
+             * the update.
+             */
+            if (member.getUser()
+                    .getId()
+                    .equals(currentUser.getId())) {
+
+                continue;
+            }
+
+            notificationService
+                    .createNotificationIfNotExists(
+                            member.getUser(),
+                            "Travel Update",
+                            message,
+                            "TRAVEL_UPDATE");
+        }
+    }
+
+    return savedTrip;
 }
 
     private void validateRequest(TripRequest request) {
