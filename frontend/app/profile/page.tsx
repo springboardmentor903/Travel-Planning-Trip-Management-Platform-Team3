@@ -11,7 +11,10 @@ export default function ProfilePage() {
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
 
-  const [preferences, setPreferences] = useState<Record<string, string>>({});
+  const [preferences, setPreferences] = useState<
+    Record<string, string>
+  >({});
+
   const [favorites, setFavorites] = useState<Destination[]>([]);
   const [preferenceStatus, setPreferenceStatus] = useState("");
 
@@ -46,7 +49,10 @@ export default function ProfilePage() {
     try {
       const updated = await api<UserProfile>("/users/me", {
         method: "PUT",
-        body: JSON.stringify({ name, location }),
+        body: JSON.stringify({
+          name,
+          location,
+        }),
       });
 
       setProfile(updated);
@@ -86,7 +92,9 @@ export default function ProfilePage() {
       });
 
       setFavorites((current) =>
-        current.filter((destination) => destination.id !== id)
+        current.filter(
+          (destination) => destination.id !== id
+        )
       );
     } catch (reason) {
       setError(
@@ -133,18 +141,25 @@ export default function ProfilePage() {
                 <h3 className="text-xl font-semibold text-[#1d2f45]">
                   {profile.name}
                 </h3>
-                <p className="text-sm text-[#64799a]">{profile.email}</p>
+
+                <p className="text-sm text-[#64799a]">
+                  {profile.email}
+                </p>
               </div>
             </div>
 
             <div className="mt-6 space-y-3 text-sm text-[#53667e]">
               <div className="rounded-2xl bg-white p-3">
-                <strong className="text-[#1d2f45]">Email:</strong>{" "}
+                <strong className="text-[#1d2f45]">
+                  Email:
+                </strong>{" "}
                 {profile.email}
               </div>
 
               <div className="rounded-2xl bg-white p-3">
-                <strong className="text-[#1d2f45]">Location:</strong>{" "}
+                <strong className="text-[#1d2f45]">
+                  Location:
+                </strong>{" "}
                 {profile.location || "Not provided"}
               </div>
             </div>
@@ -158,18 +173,24 @@ export default function ProfilePage() {
 
             <label className="mt-5 block text-sm font-medium text-[#53667e]">
               Full name
+
               <input
                 value={name}
-                onChange={(event) => setName(event.target.value)}
+                onChange={(event) =>
+                  setName(event.target.value)
+                }
                 className="mt-2 w-full rounded-2xl border border-[#dfe9ff] bg-white px-3 py-3 text-[#1d2f45] outline-none transition focus:border-[#7ea5ff] focus:ring-4 focus:ring-[#dfeaff]"
               />
             </label>
 
             <label className="mt-4 block text-sm font-medium text-[#53667e]">
               Location
+
               <input
                 value={location}
-                onChange={(event) => setLocation(event.target.value)}
+                onChange={(event) =>
+                  setLocation(event.target.value)
+                }
                 className="mt-2 w-full rounded-2xl border border-[#dfe9ff] bg-white px-3 py-3 text-[#1d2f45] outline-none transition focus:border-[#7ea5ff] focus:ring-4 focus:ring-[#dfeaff]"
               />
             </label>
@@ -203,7 +224,9 @@ export default function ProfilePage() {
                 >
                   {field
                     .replace(/([A-Z])/g, " $1")
-                    .replace(/^./, (letter) => letter.toUpperCase())}
+                    .replace(/^./, (letter) =>
+                      letter.toUpperCase()
+                    )}
 
                   <input
                     value={preferences[field] || ""}
@@ -261,7 +284,9 @@ export default function ProfilePage() {
 
                     <button
                       type="button"
-                      onClick={() => removeFavorite(destination.id)}
+                      onClick={() =>
+                        removeFavorite(destination.id)
+                      }
                       className="rounded-full border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-50"
                     >
                       Remove
@@ -277,7 +302,9 @@ export default function ProfilePage() {
           </section>
         </form>
       ) : (
-        <p className="text-sm text-[#64799a]">Loading profile...</p>
+        <p className="text-sm text-[#64799a]">
+          Loading profile...
+        </p>
       )}
     </UserShell>
   );
