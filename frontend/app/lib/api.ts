@@ -15,7 +15,24 @@ export type Trip = {
 };
 export type Destination = { id: string | number; name: string; country?: string; description?: string;latitude?: number;
   longitude?: number; weatherInfo?: string; isPopular?: boolean; weather?: { temperature: string; condition: string; source: string }; highlights?: string[] };
-export type Budget = { id?: number; amount: number | string; currency: string; trip?: { id?: number } };
+export type NominatimPlace = {
+  place_id: number;
+  name: string;
+  display_name: string;
+  lat: string;
+  lon: string;
+  type: string;
+  address?: {
+    city?: string;
+    town?: string;
+    village?: string;
+    state?: string;
+    country?: string;
+    country_code?: string;
+    [key: string]: string | undefined;
+  };
+};
+  export type Budget = { id?: number; amount: number | string; currency: string; trip?: { id?: number } };
 export type Expense = { id?: number; category: string; amount: number | string; date: string; receiptLink?: string; trip?: { id?: number }; payer?: { id?: number; name?: string; email?: string } };
 export type CategorySummaryItem = { category: string; total: number };
 export type CategorySummaryResponse = CategorySummaryItem | [string, number | string];
@@ -148,6 +165,12 @@ export async function searchTripsByName(name: string): Promise<TripSearchResult[
 
 export async function requestToJoinTrip(tripId: number): Promise<void> {
   return api(`/trips/${tripId}/join-requests`, { method: "POST", body: "{}" });
+}
+
+export async function searchPlaces(query: string): Promise<NominatimPlace[]> {
+  return api<NominatimPlace[]>(
+    `/destinations/search?query=${encodeURIComponent(query)}`
+  );
 }
 
 
